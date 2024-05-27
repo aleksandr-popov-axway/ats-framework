@@ -28,21 +28,69 @@ import com.axway.ats.rbv.rules.AbstractRule;
 
 public class FileSizeRule extends AbstractRule {
 
-    private long srcSize;
+    private long size;
+    private int cmp = 0;
 
     /**
      * Match with the specified size
      *
-     * @param sName            The name of the matcher - used for logging
-     * @param bExpected     Matcher's expected result
-     * @param size             The size with which to compare
+     * @param size The size with which to compare
+     * @param ruleName The name of the matcher - used for logging
+     * @param cmpResult The result of <code>Long.compare(size, x)</code>
+     * @param expectedResult Matcher's expected result
      */
-    public FileSizeRule( long size,
-                         String ruleName,
-                         boolean expectedResult ) {
+    public FileSizeRule(long size,
+                        String ruleName,
+                        int cmpResult,
+                        boolean expectedResult ) {
 
         super(ruleName, expectedResult, FileSystemMetaData.class);
-        this.srcSize = size;
+        this.size = size;
+        this.cmp = cmpResult;
+    }
+
+    /**
+     * Match with the specified size
+     *
+     * @param size The size with which to compare
+     * @param ruleName The name of the matcher - used for logging
+     * @param expectedResult Matcher's expected result
+     */
+    public FileSizeRule(long size,
+                        String ruleName,
+                        boolean expectedResult ) {
+
+        this(size, ruleName, 0, expectedResult);
+    }
+
+    /**
+     * Match with the size of the specified file.
+     *
+     * @param atsAgent the address of the remote ATS agent
+     * @param filePath the path name of the file for comparison
+     * @param cmpResult The result of size.compareTo(x)
+     * @param ruleName the rule name
+     * @param expectedResult the expected result
+     * @throws RbvException specified file size is undefined
+     */
+    public FileSizeRule(String atsAgent,
+                        String filePath,
+                        String ruleName,
+                        int cmpResult,
+                        boolean expectedResult ) throws RbvException {
+
+        super(ruleName, expectedResult, FileSystemMetaData.class);
+
+        try {
+            //get source file's size
+            FilePackage file = new FilePackage(atsAgent, filePath);
+            this.size = file.getSize();
+
+        } catch (PackageException pe) {
+            throw new RbvStorageException(pe);
+        }
+
+        this.cmp = cmpResult;
     }
 
     /**
@@ -52,41 +100,31 @@ public class FileSizeRule extends AbstractRule {
      * @param filePath the path name of the file for comparison
      * @param ruleName the rule name
      * @param expectedResult the expected result
-     * @throws RbvException
+     * @throws RbvException specified file size is undefined
      */
-    public FileSizeRule( String atsAgent,
-                         String filePath,
-                         String ruleName,
-                         boolean expectedResult ) throws RbvException {
+    public FileSizeRule(String atsAgent,
+                        String filePath,
+                        String ruleName,
+                        boolean expectedResult ) throws RbvException {
 
-        super(ruleName, expectedResult, FileSystemMetaData.class);
-
-        try {
-            //get source file's size
-            FilePackage file = new FilePackage(atsAgent, filePath);
-            this.srcSize = file.getSize();
-
-        } catch (PackageException pe) {
-            throw new RbvStorageException(pe);
-        }
+        this(atsAgent, filePath, ruleName, 0, expectedResult);
 
     }
 
     @Override
-    public boolean performMatch(
-                                 MetaData metaData ) throws RbvException {
+    public boolean performMatch( MetaData metaData ) throws RbvException {
 
         boolean actuaResult = false;
 
         if (metaData instanceof FileSystemMetaData) {
-            //get the file from the meta data
-            FilePackage file = ((FileSystemMetaData) metaData).getFilePackage();
-
             try {
-                //get destination file's size
-                long destSize = file.getSize();
+                //get the file from the metadata
+                FilePackage file = ((FileSystemMetaData) metaData).getFilePackage();
 
-                actuaResult = this.srcSize == destSize;
+                //get destination file's size
+                long fileSize = file.getSize();
+
+                actuaResult = Long.compare(this.size, fileSize) == this.cmp;
             } catch (PackageException pe) {
                 throw new RbvStorageException(pe);
             }
@@ -97,11 +135,17 @@ public class FileSizeRule extends AbstractRule {
     @Override
     protected String getRuleDescription() {
 
-        return "which expects file with size " + (getExpectedResult()
-                                                                      ? ""
-                                                                      : "different than ")
-               + "'"
-               + this.srcSize + "'";
+        String relativeDesc = "";
+
+        if (this.cmp != 0) {
+            if (!getExpectedResult())
+                relativeDesc += "not ";
+            relativeDesc += (this.cmp < 0) ? "below" : "above";
+        } else if (!getExpectedResult()) {
+            relativeDesc = "different than";
+        }
+
+        return String.format("which expects file with size %s '%d'", relativeDesc, this.size);
     }
 
     public List<String> getMetaDataKeys() {

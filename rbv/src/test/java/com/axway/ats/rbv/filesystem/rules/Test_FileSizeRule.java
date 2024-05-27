@@ -16,8 +16,7 @@
 package com.axway.ats.rbv.filesystem.rules;
 
 import static org.easymock.EasyMock.expect;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.powermock.api.easymock.PowerMock.createMock;
 import static org.powermock.api.easymock.PowerMock.expectNew;
 import static org.powermock.api.easymock.PowerMock.replayAll;
@@ -34,7 +33,6 @@ import com.axway.ats.action.objects.model.PackageException;
 import com.axway.ats.rbv.BaseTest;
 import com.axway.ats.rbv.MetaData;
 import com.axway.ats.rbv.filesystem.FileSystemMetaData;
-import com.axway.ats.rbv.filesystem.rules.FileSizeRule;
 import com.axway.ats.rbv.model.MetaDataIncorrectException;
 import com.axway.ats.rbv.model.RbvException;
 
@@ -57,11 +55,11 @@ public class Test_FileSizeRule extends BaseTest {
     @Test
     public void isMatchConstructWithSizePositive() throws Exception {
 
-        expect(pack.getSize()).andReturn(100l);
+        expect(pack.getSize()).andReturn(100L);
 
         replayAll();
 
-        FileSizeRule rule = new FileSizeRule(100l, "isMatchConstructWithSizePositive", true);
+        FileSizeRule rule = new FileSizeRule(100L, "isMatchConstructWithSizePositive", true);
         MetaData metaData = new FileSystemMetaData(pack);
         assertTrue(rule.isMatch(metaData));
 
@@ -71,11 +69,11 @@ public class Test_FileSizeRule extends BaseTest {
     @Test
     public void isMatchConstructWithSizeNegative() throws Exception {
 
-        expect(pack.getSize()).andReturn(100l);
+        expect(pack.getSize()).andReturn(100L);
 
         replayAll();
 
-        FileSizeRule rule = new FileSizeRule(11100l, "isMatchConstructWithSizeNegative", true);
+        FileSizeRule rule = new FileSizeRule(11100L, "isMatchConstructWithSizeNegative", true);
         MetaData metaData = new FileSystemMetaData(pack);
         assertFalse(rule.isMatch(metaData));
 
@@ -85,11 +83,11 @@ public class Test_FileSizeRule extends BaseTest {
     @Test
     public void isMatchConstructWithSizeExpectFalsePositive() throws Exception {
 
-        expect(pack.getSize()).andReturn(100l);
+        expect(pack.getSize()).andReturn(100L);
 
         replayAll();
 
-        FileSizeRule rule = new FileSizeRule(11100l, "isMatchConstructWithSizeExpectFalsePositive", false);
+        FileSizeRule rule = new FileSizeRule(11100L, "isMatchConstructWithSizeExpectFalsePositive", false);
         MetaData metaData = new FileSystemMetaData(pack);
         assertTrue(rule.isMatch(metaData));
 
@@ -99,11 +97,137 @@ public class Test_FileSizeRule extends BaseTest {
     @Test
     public void isMatchConstructWithSizeExpectFalseNegative() throws Exception {
 
-        expect(pack.getSize()).andReturn(100l);
+        expect(pack.getSize()).andReturn(100L);
 
         replayAll();
 
-        FileSizeRule rule = new FileSizeRule(100l, "isMatchConstructWithSizeExpectFalseNegative", false);
+        FileSizeRule rule = new FileSizeRule(100L, "isMatchConstructWithSizeExpectFalseNegative", false);
+        MetaData metaData = new FileSystemMetaData(pack);
+        assertFalse(rule.isMatch(metaData));
+
+        verifyAll();
+    }
+
+    @Test
+    public void isMatchConstructWithSizeAtLeastPositive() throws Exception {
+
+        expect(pack.getSize()).andReturn(100L);
+
+        replayAll();
+
+        FileSizeRule rule = new FileSizeRule(99L, "isMatchConstructWithSizeAtLeastPositive", 1, false);
+        MetaData metaData = new FileSystemMetaData(pack);
+        assertTrue(rule.isMatch(metaData));
+
+        verifyAll();
+    }
+
+    @Test
+    public void isMatchConstructWithSizeAtLeastEqualPositive() throws Exception {
+
+        expect(pack.getSize()).andReturn(100L);
+
+        replayAll();
+
+        FileSizeRule rule = new FileSizeRule(100L, "isMatchConstructWithSizeAtLeastEqualPositive", 1, false);
+        MetaData metaData = new FileSystemMetaData(pack);
+        assertTrue(rule.isMatch(metaData));
+
+        verifyAll();
+    }
+
+    @Test
+    public void isMatchConstructWithSizeAtLeastNegative() throws Exception {
+
+        expect(pack.getSize()).andReturn(100L);
+
+        replayAll();
+
+        FileSizeRule rule = new FileSizeRule(101L, "isMatchConstructWithSizeAtLeastNegative", 1, false);
+        MetaData metaData = new FileSystemMetaData(pack);
+        assertFalse(rule.isMatch(metaData));
+
+        verifyAll();
+    }
+
+    @Test
+    public void isMatchConstructWithSizeBelowPositive() throws Exception {
+
+        expect(pack.getSize()).andReturn(100L);
+
+        replayAll();
+
+        FileSizeRule rule = new FileSizeRule(99L, "isMatchConstructWithSizeBelowPositive", -1, true);
+        MetaData metaData = new FileSystemMetaData(pack);
+        assertTrue(rule.isMatch(metaData));
+
+        verifyAll();
+    }
+
+    @Test
+    public void isMatchConstructWithSizeBelowEqualNegative() throws Exception {
+
+        expect(pack.getSize()).andReturn(100L);
+
+        replayAll();
+
+        FileSizeRule rule = new FileSizeRule(100L, "isMatchConstructWithSizeBelowEqualNegative", -1, true);
+        MetaData metaData = new FileSystemMetaData(pack);
+        assertFalse(rule.isMatch(metaData));
+
+        verifyAll();
+    }
+
+    @Test
+    public void isMatchConstructWithSizeBelowNegative() throws Exception {
+
+        expect(pack.getSize()).andReturn(100L);
+
+        replayAll();
+
+        FileSizeRule rule = new FileSizeRule(101L, "isMatchConstructWithSizeBelowNegative", -1, true);
+        MetaData metaData = new FileSystemMetaData(pack);
+        assertFalse(rule.isMatch(metaData));
+
+        verifyAll();
+    }
+
+    @Test
+    public void isMatchConstructWithSizeAbovePositive() throws Exception {
+
+        expect(pack.getSize()).andReturn(100L);
+
+        replayAll();
+
+        FileSizeRule rule = new FileSizeRule(101L, "isMatchConstructWithSizeAbovePositive", 1, true);
+        MetaData metaData = new FileSystemMetaData(pack);
+        assertTrue(rule.isMatch(metaData));
+
+        verifyAll();
+    }
+
+    @Test
+    public void isMatchConstructWithSizeAboveEqualNegative() throws Exception {
+
+        expect(pack.getSize()).andReturn(100L);
+
+        replayAll();
+
+        FileSizeRule rule = new FileSizeRule(100L, "isMatchConstructWithSizeAboveEqualNegative", 1, true);
+        MetaData metaData = new FileSystemMetaData(pack);
+        assertFalse(rule.isMatch(metaData));
+
+        verifyAll();
+    }
+
+    @Test
+    public void isMatchConstructWithSizeAboveNegative() throws Exception {
+
+        expect(pack.getSize()).andReturn(100L);
+
+        replayAll();
+
+        FileSizeRule rule = new FileSizeRule(99L, "isMatchConstructWithSizeAboveNegative", 1, true);
         MetaData metaData = new FileSystemMetaData(pack);
         assertFalse(rule.isMatch(metaData));
 
@@ -114,7 +238,7 @@ public class Test_FileSizeRule extends BaseTest {
     public void isMatchConstructWithFilePositive() throws Exception {
 
         expectNew(FilePackage.class, null, null, testPath).andReturn(pack);
-        expect(pack.getSize()).andReturn(100l).times(2);
+        expect(pack.getSize()).andReturn(100L).times(2);
 
         replayAll();
 
@@ -129,8 +253,8 @@ public class Test_FileSizeRule extends BaseTest {
     public void isMatchConstructWithFileNegative() throws Exception {
 
         expectNew(FilePackage.class, null, null, testPath).andReturn(pack);
-        expect(pack.getSize()).andReturn(11100l);
-        expect(pack.getSize()).andReturn(100l);
+        expect(pack.getSize()).andReturn(11100L);
+        expect(pack.getSize()).andReturn(100L);
 
         replayAll();
 
@@ -145,8 +269,8 @@ public class Test_FileSizeRule extends BaseTest {
     public void isMatchConstructWithFileExpectFalsePositive() throws Exception {
 
         expectNew(FilePackage.class, null, null, testPath).andReturn(pack);
-        expect(pack.getSize()).andReturn(11100l);
-        expect(pack.getSize()).andReturn(100l);
+        expect(pack.getSize()).andReturn(11100L);
+        expect(pack.getSize()).andReturn(100L);
 
         replayAll();
 
@@ -164,7 +288,7 @@ public class Test_FileSizeRule extends BaseTest {
     public void isMatchConstructWithFileExpectFalseNegative() throws Exception {
 
         expectNew(FilePackage.class, null, null, testPath).andReturn(pack);
-        expect(pack.getSize()).andReturn(100l).times(2);
+        expect(pack.getSize()).andReturn(100L).times(2);
 
         replayAll();
 
@@ -181,11 +305,11 @@ public class Test_FileSizeRule extends BaseTest {
     @Test( expected = MetaDataIncorrectException.class)
     public void isMatchNullMetaDataContent() throws Exception {
 
-        expect(pack.getSize()).andReturn(100l);
+        expect(pack.getSize()).andReturn(100L);
 
         replayAll();
 
-        FileSizeRule rule = new FileSizeRule(100l, "isMatchNullMetaDataContent", true);
+        FileSizeRule rule = new FileSizeRule(100L, "isMatchNullMetaDataContent", true);
         MetaData metaData = new FileSystemMetaData(null);
         assertFalse(rule.isMatch(metaData));
 
@@ -195,11 +319,11 @@ public class Test_FileSizeRule extends BaseTest {
     @Test( expected = MetaDataIncorrectException.class)
     public void isMatchInvalidMetaDataContent() throws Exception {
 
-        expect(pack.getSize()).andReturn(100l);
+        expect(pack.getSize()).andReturn(100L);
 
         replayAll();
 
-        FileSizeRule rule = new FileSizeRule(100l, "isMatchInvalidMetaDataContent", true);
+        FileSizeRule rule = new FileSizeRule(100L, "isMatchInvalidMetaDataContent", true);
         MetaData metaData = new MetaData();
         assertFalse(rule.isMatch(metaData));
 
@@ -209,11 +333,11 @@ public class Test_FileSizeRule extends BaseTest {
     @Test( expected = RbvException.class)
     public void isMatchNullMetaData() throws Exception {
 
-        expect(pack.getSize()).andReturn(100l);
+        expect(pack.getSize()).andReturn(100L);
 
         replayAll();
 
-        FileSizeRule rule = new FileSizeRule(100l, "isMatchNullMetaData", true);
+        FileSizeRule rule = new FileSizeRule(100L, "isMatchNullMetaData", true);
         assertFalse(rule.isMatch(null));
 
         verifyAll();
@@ -223,12 +347,12 @@ public class Test_FileSizeRule extends BaseTest {
     public void constructWithMachine() throws Exception {
 
         expectNew(FilePackage.class, null, null, testPath).andReturn(pack);
-        expect(pack.getSize()).andReturn(100l);
+        expect(pack.getSize()).andReturn(100L);
 
         replayAll();
 
         FileSizeRule rule = new FileSizeRule(null, testPath, "constructWithMachine", true);
-        assertTrue(rule != null);
+        assertNotNull(rule);
 
         verifyAll();
     }
@@ -237,12 +361,12 @@ public class Test_FileSizeRule extends BaseTest {
     public void constructWithNullMachine() throws Exception {
 
         expectNew(FilePackage.class, null, null, testPath).andReturn(pack);
-        expect(pack.getSize()).andReturn(100l);
+        expect(pack.getSize()).andReturn(100L);
 
         replayAll();
 
         FileSizeRule rule = new FileSizeRule(null, testPath, "constructWithNullMachine", true);
-        assertTrue(rule != null);
+        assertNotNull(rule);
 
         verifyAll();
     }

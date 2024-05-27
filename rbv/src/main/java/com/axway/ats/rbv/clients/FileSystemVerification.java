@@ -40,6 +40,7 @@ import com.axway.ats.rbv.filesystem.rules.FilePermRule;
 import com.axway.ats.rbv.filesystem.rules.FileSizeRule;
 import com.axway.ats.rbv.filesystem.rules.FileUidRule;
 import com.axway.ats.rbv.model.RbvException;
+import com.axway.ats.rbv.rules.Rule;
 
 /**
  * Class used for verifications of file attributes (remote or local).
@@ -157,6 +158,18 @@ public class FileSystemVerification extends VerificationSkeleton {
     }
 
     /**
+     * Add a rule to perform custom check on the file
+     *
+     * @param rule custom rule definition
+     * @throws RbvException thrown on error
+     */
+    @PublicAtsApi
+    public void check( Rule rule ) throws RbvException {
+
+        rootRule.addRule(rule);
+    }
+
+    /**
      * Add rule to check that the size of the received file is the same
      * as the size of the source file
      *
@@ -261,6 +274,45 @@ public class FileSystemVerification extends VerificationSkeleton {
     public void checkSizeDifferent( long size ) {
 
         FileSizeRule rule = new FileSizeRule(size, "checkSizeDifferent", false);
+        rootRule.addRule(rule);
+    }
+
+    /**
+     * Add rule to check that the size of the received file is not less
+     * than the given one
+     *
+     * @param size
+     */
+    @PublicAtsApi
+    public void checkSizeAtLeast( long size ) {
+
+        FileSizeRule rule = new FileSizeRule(size, "checkSizeAtLeast", 1, false);
+        rootRule.addRule(rule);
+    }
+
+    /**
+     * Add rule to check that the size of the received file is less
+     * than the given one
+     *
+     * @param size
+     */
+    @PublicAtsApi
+    public void checkSizeBelow( long size ) {
+
+        FileSizeRule rule = new FileSizeRule(size, "checkSizeBelow", -1, true);
+        rootRule.addRule(rule);
+    }
+
+    /**
+     * Add rule to check that the size of the received file is more
+     * than the given one
+     *
+     * @param size
+     */
+    @PublicAtsApi
+    public void checkSizeAbove( long size ) {
+
+        FileSizeRule rule = new FileSizeRule(size, "checkSizeAbove", 1, true);
         rootRule.addRule(rule);
     }
 
